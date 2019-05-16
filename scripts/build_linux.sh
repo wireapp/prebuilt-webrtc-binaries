@@ -28,7 +28,7 @@ pushd src > /dev/null
 
 git checkout remotes/branch-heads/$WEBRTC_RELEASE
 git checkout -b release_$WEBRTC_RELEASE
-gclient sync
+yes | gclient sync
 
 . build/install-build-deps-android.sh
 . build/android/envsetup.sh 
