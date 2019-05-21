@@ -30,7 +30,8 @@ git checkout remotes/branch-heads/$WEBRTC_RELEASE
 git checkout -b release_$WEBRTC_RELEASE
 yes | gclient sync
 
-. build/install-build-deps-android.sh
+sed s/sudo/echo\ sudo/g build/install-build-deps-android.sh > build/install-build-deps-android-nosudo.sh
+. build/install-build-deps-android-nosudo.sh --quick-check
 . build/android/envsetup.sh 
 
 for PATCH in ../../patch/*.patch; do 
