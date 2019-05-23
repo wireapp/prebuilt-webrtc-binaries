@@ -30,16 +30,17 @@ for PATCH in ../../patch/*.patch; do
   patch -p1 < $PATCH
 done
 
-gn gen out/osx-x86_64 -args='target_os="mac" target_cpu="x64" is_debug=false rtc_include_tests=false'
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false"
+gn gen out/osx-x86_64 -args="target_os=\"mac\" target_cpu=\"x64\" $ARGS"
 ninja -C out/osx-x86_64
 
-gn gen out/ios-x86_64 -args='target_os="ios" target_cpu="x64" is_debug=false rtc_include_tests=false'
+gn gen out/ios-x86_64 -args="target_os=\"ios\" target_cpu=\"x64\" $ARGS"
 ninja -C out/ios-x86_64
 
-gn gen out/ios-armv7 -args='target_os="ios" target_cpu="arm" is_debug=false rtc_include_tests=false'
+gn gen out/ios-armv7 -args="target_os=\"ios\" target_cpu=\"arm\" $ARGS"
 ninja -C out/ios-armv7
 
-gn gen out/ios-arm64 -args='target_os="ios" target_cpu="arm64" is_debug=false rtc_include_tests=false'
+gn gen out/ios-arm64 -args="target_os=\"ios\" target_cpu=\"arm64\" $ARGS"
 ninja -C out/ios-arm64
 
 popd > /dev/null
