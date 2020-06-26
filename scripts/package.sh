@@ -35,13 +35,13 @@ for OS in $AVS_OS; do
 			cp $p/obj/libwebrtc.a $dst/
 		fi
 
-		jar=$p/obj/modules/audio_device/audio_device_java__process_prebuilt-desugar.jar
+		jar=$p/obj/modules/audio_device/audio_device_java__process_prebuilt.desugar.jar
 		if [ -e $jar ]; then
 			mkdir -p $WEBRTC_RB/java
 			cp $jar $WEBRTC_RB/java/audiodev.jar
 		fi
 
-		jar=$p/obj/rtc_base/base_java__process_prebuilt-desugar.jar
+		jar=$p/obj/rtc_base/base_java__process_prebuilt.desugar.jar
 		if [ -e $jar ]; then
 			mkdir -p $WEBRTC_RB/java
 			cp $jar $WEBRTC_RB/java/base.jar
