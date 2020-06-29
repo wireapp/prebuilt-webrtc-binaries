@@ -33,7 +33,7 @@ for PATCH in ../../patch/*.patch; do
   patch -p1 < $PATCH
 done
 
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false"
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false ios_enable_code_signing=false"
 gn gen out/osx-x86_64 -args="target_os=\"mac\" target_cpu=\"x64\" $ARGS"
 ninja -C out/osx-x86_64
 
