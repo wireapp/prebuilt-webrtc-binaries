@@ -19,6 +19,11 @@ jobs:
       # Checks-out the repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y linux-libc-dev:i386 libx11-xcb1:i386 libpci3:i386
+
       - name: Build
         run: ./scripts/build_linux.sh
 
@@ -32,8 +37,11 @@ jobs:
 
   build_macos:
     name: Build (macOS)
-    runs-on: macos-11
-    
+    runs-on: macos-10.14
+
+    env:
+        DEVELOPER_DIR: /Applications/Xcode_11.3.app/Contents/Developer
+
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v2
