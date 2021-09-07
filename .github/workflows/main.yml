@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_linux:
+    name: Build (linux)
+    runs-on: ubuntu-18.04
+
+    steps:
+      # Checks-out the repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: ./scripts/build_linux.sh
+
+      - name: Package
+        run: ./scripts/package.sh
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          path: $GITHUB_WORKSPACE/webrtc_.*.zip
+
+  build_macos:
+    name: Build (macOS)
+    runs-on: macos-11
+    
+    steps:
+      # Checks-out the repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: ./scripts/build_iosx.sh
+
+      - name: Package
+        run: ./scripts/package.sh
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          path: $GITHUB_WORKSPACE/webrtc_.*.zip
