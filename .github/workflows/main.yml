@@ -12,7 +12,7 @@ on:
 
 jobs:
   build_linux:
-    name: Build (linux)
+    name: linux
     runs-on: ubuntu-18.04
 
     steps:
@@ -21,6 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y linux-libc-dev:i386 libx11-xcb1:i386 libpci3:i386
 
@@ -36,7 +37,7 @@ jobs:
           path: $GITHUB_WORKSPACE/webrtc_.*.zip
 
   build_macos:
-    name: Build (macOS)
+    name: macOS
     runs-on: macos-10.14
 
     env:
