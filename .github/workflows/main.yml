@@ -14,9 +14,6 @@ jobs:
   build_linux:
     name: linux
     runs-on: ubuntu-18.04
-#    env:
-#      ANDROID_SDK_ROOT: /opt/android-sdk
-#      PATH: $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/:$PATH
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
@@ -72,17 +69,26 @@ jobs:
                   binutils-mipsel-linux-gnu \
                   binutils-mips64el-linux-gnuabi64 \
                   binutils-arm-linux-gnueabihf \
-                  binutils-aarch64-linux-gnu
+                  binutils-aarch64-linux-gnu \
+                  xcompmgr \
+                  x11-utils \
+                  subversion \
+                  ruby \
+                  rpm \
+                  php7.2-cgi \
+                  p7zip \
+                  libxt-dev \
+                  libssl-dev \
+                  libsqlite3-dev \
+                  libgbm-dev \
+                  libffi-dev \
+                  libbz2-dev \
+                  libapache2-mod-php7.2 \
+                  elfutils \
+                  dbus-x11 \
+                  cdbs \
+                  apache2-bin
           sudo apt-get install -y linux-libc-dev:i386 libx11-xcb1:i386 libpci3:i386
-#          curl https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o cmdline-tools.zip
-#          unzip cmdline-tools.zip
-#          mkdir -p /opt/android-sdk/cmdline-tools/latest/
-#          mv cmdline-tools/bin /opt/android-sdk/cmdline-tools/latest/
-#          mv cmdline-tools/lib /opt/android-sdk/cmdline-tools/latest/
-#          yes | sdkmanager --licenses
-#          sdkmanager --install ndk-bundle
-#          sdkmanager --install "platforms;android-21"
-#          #ANDROID_NDK_ROOT: /opt/android-sdk/ndk/*/
 
       - name: Build
         run: ./scripts/build_linux.sh
