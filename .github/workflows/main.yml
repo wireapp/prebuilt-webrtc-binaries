@@ -99,7 +99,14 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
-          path: $GITHUB_WORKSPACE/webrtc_.*.zip
+          path: webrtc_*.zip
+
+      - name: Release Draft
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          artifacts: "webrtc_*.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   build_macos:
     name: macOS
@@ -122,3 +129,10 @@ jobs:
         uses: actions/upload-artifact@v2.2.4
         with:
           path: webrtc_*.zip
+
+      - name: Release Draft
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          artifacts: "webrtc_*.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
