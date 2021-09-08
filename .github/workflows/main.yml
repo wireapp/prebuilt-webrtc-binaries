@@ -101,13 +101,6 @@ jobs:
         with:
           path: webrtc_*.zip
 
-      - name: Release Draft
-        uses: ncipollo/release-action@v1
-        with:
-          draft: true
-          artifacts: "webrtc_*.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   build_macos:
     name: macOS
     runs-on: macos-10.14
@@ -130,9 +123,3 @@ jobs:
         with:
           path: webrtc_*.zip
 
-      - name: Release Draft
-        uses: ncipollo/release-action@v1
-        with:
-          draft: true
-          artifacts: "webrtc_*.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
