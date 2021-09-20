@@ -1,0 +1,12 @@
+diff --git a/base/allocator/partition_allocator/reservation_offset_table.h b/base/allocator/partition_allocator/reservation_offset_table.h
+index 3caab87761..44f4c2260c 100644
+--- a/base/allocator/partition_allocator/reservation_offset_table.h
++++ b/base/allocator/partition_allocator/reservation_offset_table.h
+@@ -8,6 +8,7 @@
+ #include <cstddef>
+ #include <cstdint>
+ #include <limits>
++#include <tuple>
+ 
+ #include "base/allocator/partition_allocator/address_pool_manager.h"
+ #include "base/allocator/partition_allocator/partition_address_space.h"

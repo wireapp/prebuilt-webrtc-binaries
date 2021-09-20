@@ -3,9 +3,6 @@
 SCRIPT_DIR=${BASH_SOURCE%/*}
 . "$SCRIPT_DIR/version.sh"
 
-sudo apt update
-sudo apt install make git build-essential pkg-config python
-
 if [ -e depot_tools ]; then
 	pushd depot_tools
 	git pull
@@ -26,11 +23,8 @@ fi
 
 pushd src > /dev/null
 
-if [ "$WEBRTC_COMMIT" == "" ]; then
-	git checkout remotes/branch-heads/$WEBRTC_RELEASE
-else
-	git checkout $WEBRTC_COMMIT
-fi
+git checkout $WEBRTC_COMMIT
+
 yes | gclient sync
 
 sed s/sudo/echo\ sudo/g build/install-build-deps-android.sh > build/install-build-deps-android-nosudo.sh
