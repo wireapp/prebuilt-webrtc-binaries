@@ -27,15 +27,13 @@ git checkout $WEBRTC_COMMIT
 
 yes | gclient sync
 
-sed s/sudo/echo\ sudo/g build/install-build-deps-android.sh > build/install-build-deps-android-nosudo.sh
-. build/install-build-deps-android-nosudo.sh --quick-check
 . build/android/envsetup.sh 
 
-for PATCH in ../../patch/*.patch; do 
-  patch -p1 < $PATCH
-done
+#for PATCH in ../../patch/*.patch; do 
+#  patch -p1 < $PATCH
+#done
 
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false"
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=true"
 gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
 ninja -C out/linux-x86_64
 

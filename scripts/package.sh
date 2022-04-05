@@ -57,6 +57,7 @@ for OS in $AVS_OS; do
 
 	if [ -e ./$WEBRTC_RB ]; then
 		zip -9r webrtc_${WEBRTC_RB}_${OS}.zip ./$WEBRTC_RB
+		rm -rf ./$WEBRTC_RB 2> /dev/null
 	fi
 done
 
