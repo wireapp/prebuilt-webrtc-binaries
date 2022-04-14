@@ -1,0 +1,30 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index a2918645f8..a3bf156810 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -105,9 +105,9 @@ if (!build_with_chromium) {
+         ]
+       }
+     }
+-    if (target_os == "android") {
+-      deps += [ "tools_webrtc:binary_version_check" ]
+-    }
++    #if (target_os == "android") {
++    #  deps += [ "tools_webrtc:binary_version_check" ]
++    #}
+   }
+ }
+ 
+diff --git a/sdk/android/BUILD.gn b/sdk/android/BUILD.gn
+index dda61cea08..58006c515c 100644
+--- a/sdk/android/BUILD.gn
++++ b/sdk/android/BUILD.gn
+@@ -15,7 +15,7 @@ if (is_android) {
+     if (!build_with_chromium && is_android) {
+       public_deps = [
+         ":libjingle_peerconnection_jni",
+-        ":libjingle_peerconnection_so",
++        #":libjingle_peerconnection_so",
+         ":libwebrtc",
+         ":native_api",
+       ]

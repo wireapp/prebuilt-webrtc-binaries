@@ -27,13 +27,13 @@ git checkout $WEBRTC_COMMIT
 
 yes | gclient sync
 
+for PATCH in ../../patch/*.patch; do 
+  patch -p1 < $PATCH
+done
+
 . build/android/envsetup.sh 
 
-#for PATCH in ../../patch/*.patch; do 
-#  patch -p1 < $PATCH
-#done
-
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=true"
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false"
 gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
 ninja -C out/linux-x86_64
 
