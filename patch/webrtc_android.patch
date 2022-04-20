@@ -1,15 +1,11 @@
 diff --git a/modules/utility/include/jvm_android.h b/modules/utility/include/jvm_android.h
-index 3caab87761..44f4c2260c 100644
+index bafb8f2c15..5fd1a9688f 100644
 --- a/modules/utility/include/jvm_android.h
 +++ b/modules/utility/include/jvm_android.h
-@@ -149,9 +149,10 @@ class JNIEnvironment {
- //   JVM::Uninitialize();
- class JVM {
-  public:
-+  static void Initialize(JavaVM* jvm);
+@@ -152,6 +152,7 @@ class JVM {
    // Stores global handles to the Java VM interface.
    // Should be called once on a thread that is attached to the JVM.
--  static void Initialize(JavaVM* jvm);
+   static void Initialize(JavaVM* jvm);
 +  static void Initialize(JavaVM* jvm, JNIEnv *jni);
    // Like the method above but also passes the context to the ContextUtils
    // class. This method should be used by pure-C++ Android users that can't call
@@ -24,7 +20,7 @@ index 3caab87761..44f4c2260c 100644
  
   private:
 diff --git a/modules/utility/source/jvm_android.cc b/modules/utility/source/jvm_android.cc
-index 8e24daa0f2..b94c059d28 100644
+index ee9930bcaa..b97b2c3c95 100644
 --- a/modules/utility/source/jvm_android.cc
 +++ b/modules/utility/source/jvm_android.cc
 @@ -21,6 +21,37 @@
@@ -40,15 +36,15 @@ index 8e24daa0f2..b94c059d28 100644
 +    env = GetEnv(g_vm);
 +    attached = false;
 +    if (!env) {
-+      RTC_LOG(INFO) << "Jni_Env::Attaching thread to JVM";
++      RTC_LOG(LS_INFO) << "Jni_Env::Attaching thread to JVM";
 +
 +      jint ret = g_vm->AttachCurrentThread(&env, nullptr);
 +      if (ret == JNI_OK) {
-+	attached = true;
++        attached = true;
 +      }
 +      else {
-+	attached = false;
-+	env = nullptr;
++        attached = false;
++        env = nullptr;
 +      }
 +    }
 +  }
@@ -70,7 +66,7 @@ index 8e24daa0f2..b94c059d28 100644
      c.clazz = globalRef;
    }
 +
-+  RTC_LOG(INFO) << "LoadClasses: done";
++  RTC_LOG(LS_INFO) << "LoadClasses: done";
  }
  
  void FreeClassReferences(JNIEnv* jni) {
@@ -119,7 +115,7 @@ index 8e24daa0f2..b94c059d28 100644
 @@ -136,8 +174,9 @@ NativeRegistration::NativeRegistration(JNIEnv* jni, jclass clazz)
  
  NativeRegistration::~NativeRegistration() {
-   RTC_LOG(INFO) << "NativeRegistration::dtor";
+   RTC_LOG(LS_INFO) << "NativeRegistration::dtor";
 -  jni_->UnregisterNatives(j_class_);
 -  CHECK_EXCEPTION(jni_) << "Error during UnregisterNatives";
 +  Jni_Env jenv;
@@ -129,7 +125,7 @@ index 8e24daa0f2..b94c059d28 100644
  
  std::unique_ptr<GlobalRef> NativeRegistration::NewObject(const char* name,
 @@ -146,41 +185,47 @@ std::unique_ptr<GlobalRef> NativeRegistration::NewObject(const char* name,
-   RTC_LOG(INFO) << "NativeRegistration::NewObject";
+   RTC_LOG(LS_INFO) << "NativeRegistration::NewObject";
    va_list args;
    va_start(args, signature);
 -  jobject obj = jni_->NewObjectV(
@@ -181,11 +177,11 @@ index 8e24daa0f2..b94c059d28 100644
  // JNIEnvironment implementation.
  JNIEnvironment::JNIEnvironment(JNIEnv* jni) : jni_(jni) {
 +  (void)jni_;
-   RTC_LOG(INFO) << "JNIEnvironment::ctor";
+   RTC_LOG(LS_INFO) << "JNIEnvironment::ctor";
  }
  
 @@ -196,36 +241,48 @@ std::unique_ptr<NativeRegistration> JNIEnvironment::RegisterNatives(
-   RTC_LOG(INFO) << "JNIEnvironment::RegisterNatives: " << name;
+   RTC_LOG(LS_INFO) << "JNIEnvironment::RegisterNatives: " << name;
    RTC_DCHECK(thread_checker_.IsCurrent());
    jclass clazz = LookUpClass(name);
 -  jni_->RegisterNatives(clazz, methods, num_methods);
@@ -225,7 +221,7 @@ index 8e24daa0f2..b94c059d28 100644
 +}
 +
 +void JVM::Initialize(JavaVM* jvm, JNIEnv *jni) {
-   RTC_LOG(INFO) << "JVM::Initialize";
+   RTC_LOG(LS_INFO) << "JVM::Initialize";
    RTC_CHECK(!g_jvm);
 -  g_jvm = new JVM(jvm);
 +  g_jvm = new JVM(jvm, jni);
@@ -251,7 +247,7 @@ index 8e24daa0f2..b94c059d28 100644
  
 -JVM::JVM(JavaVM* jvm) : jvm_(jvm) {
 +JVM::JVM(JavaVM* jvm, JNIEnv *jni) : jvm_(jvm) {
-   RTC_LOG(INFO) << "JVM::JVM";
+   RTC_LOG(LS_INFO) << "JVM::JVM";
 -  RTC_CHECK(jni()) << "AttachCurrentThread() must be called on this thread.";
 -  LoadClasses(jni());
 +  RTC_CHECK(jni) << "AttachCurrentThread() must be called on this thread.";
