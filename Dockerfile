@@ -2,7 +2,8 @@ FROM ubuntu:20.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install -y \
-	zip \
+        git \
+        zip \
         xcompmgr \
         x11-utils \
         uuid-dev \
