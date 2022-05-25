@@ -3,6 +3,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install -y \
         git \
+        make \
+        build-essential \
+        pkg-config \
+        python \
         zip \
         xcompmgr \
         x11-utils \
