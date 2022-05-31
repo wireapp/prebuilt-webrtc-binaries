@@ -1,10 +1,10 @@
 #! /bin/bash
 
 apt update && apt install -y \
-        make \
-        build-essential \
-        pkg-config \
-        python \
+	make \
+	build-essential \
+	pkg-config \
+	python \
 	zip \
 	xcompmgr \
 	x11-utils \
