@@ -20,6 +20,7 @@ pipeline {
                     }
                     steps {
 			checkout scm
+                        sh 'cd $WORKSPACE'
                         sh './scripts/build_iosx.sh'
                         sh './scripts/package.sh'
                         archiveArtifacts artifacts: 'webrtc*.zip', followSymlinks: false
