@@ -14,7 +14,7 @@ pipeline {
                     sh '''
                     export GITHUB_TOKEN=$token
                     . scripts/version.sh
-                    # python3 scripts/push2github.py
+                    python3 scripts/push2github.py
                     '''
                 }
             }
