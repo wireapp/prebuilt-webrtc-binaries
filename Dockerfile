@@ -106,5 +106,3 @@ RUN apt update && apt install -y \
 COPY . /build/webrtc
 WORKDIR /build/webrtc
 
-# CMD scripts/build_linux.sh && scripts/package.sh && cp webrtc*.zip /out
-
