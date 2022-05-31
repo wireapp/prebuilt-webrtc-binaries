@@ -34,7 +34,7 @@ pipeline {
         always {
             node('linuxbuild') {
                 script {
-                    sh 'docker stop prebuilt-webrtc:$BUILD_NUMBER'
+                    sh returnStdout: true, script: 'docker stop `docker ps -a -q --filter ancestor=prebuilt-webrtc:$BUILD_NUMBER`'
                     sh 'docker container prune -f && docker volume prune -f'
                 }
             }
