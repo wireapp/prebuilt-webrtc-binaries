@@ -21,7 +21,7 @@ pipeline {
                     }
                     steps {
                         git branch: params.BRANCH, url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
-                        sh 'rm -rf ./webrtc_checkout/'
+                        sh 'rm -rf ./webrtc_checkout/ ./depot_tools/'
                         sh './scripts/build_iosx.sh'
                         sh './scripts/package.sh'
                         archiveArtifacts artifacts: 'webrtc*.zip', followSymlinks: false
