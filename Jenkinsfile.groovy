@@ -35,7 +35,7 @@ pipeline {
             node('linuxbuild') {
                 script {
                     sh returnStatus: true, script: 'docker stop prebuilt-webrtc$BUILD_NUMBER'
-                    sh 'docker container prune -f && docker volume prune -f'
+                    sh 'docker container prune -f && docker volume prune -f && docker image prune -f'
                 }
             }
         }
