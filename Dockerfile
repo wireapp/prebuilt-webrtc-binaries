@@ -56,7 +56,7 @@ RUN apt update && apt install -y \
         libnss3 \
         libnspr4-dev \
         libnspr4 \
-	libkrb5-dev \
+        libkrb5-dev \
         libjpeg-dev \
         libinput10 \
         libinput-dev \
