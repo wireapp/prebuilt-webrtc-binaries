@@ -8,7 +8,7 @@ pipeline {
                         label 'linuxbuild'
                     }
                     steps {
-                        git branch: 'docker-on-jenkins', url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
+                        checkout scm
                         sh 'docker build . -t prebuilt-webrtc:snapshot'
                         sh 'docker run --volume=$WORKSPACE:/out -t prebuilt-webrtc:snapshot /bin/bash -c "scripts/build_linux.sh; scripts/package.sh; cp *.zip /out"'
                         archiveArtifacts artifacts: 'webrtc*.zip', followSymlinks: false
@@ -19,7 +19,7 @@ pipeline {
                         label 'built-in'
                     }
                     steps {
-                        git branch: 'docker-on-jenkins', url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
+			checkout scm
                         sh './scripts/build_iosx.sh'
                         sh './scripts/package.sh'
                         archiveArtifacts artifacts: 'webrtc*.zip', followSymlinks: false
