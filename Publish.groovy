@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('Get artifacts') {
             steps {
-                copyArtifacts filter: 'webrtc_*.zip', fingerprintArtifacts: true, projectName: 'webrtc', selector: buildParameter('BUILD_SELECTOR')
+                copyArtifacts filter: 'webrtc*.zip', fingerprintArtifacts: true, projectName: 'webrtc-prebuild-new', selector: buildParameter('BUILD_SELECTOR')
             }
         }
         stage('Publish') {
