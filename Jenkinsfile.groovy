@@ -11,7 +11,7 @@ pipeline {
                         git branch: params.BRANCH, url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
                         sh 'docker container prune -f && docker volume prune -f'
                         sh 'docker build . -t prebuilt-webrtc'
-                        sh 'docker run --volume=$WORKSPACE:/out -t --name=prebuilt-webrtc$BUILDNUMBER prebuilt-webrtc /bin/bash -c "scripts/build_linux.sh; scripts/package.sh; cp *.zip /out"'
+                        sh 'docker run --volume=$WORKSPACE:/out -t --name=prebuilt-webrtc$BUILD_NUMBER prebuilt-webrtc /bin/bash -c "scripts/build_linux.sh; scripts/package.sh; cp *.zip /out"'
                         archiveArtifacts artifacts: 'webrtc*.zip', followSymlinks: false
                     }
                 }
