@@ -29,8 +29,8 @@ pipeline {
                         git branch: params.BRANCH, url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
 
                         // cleanup old directories and zips
-                        sh 'rm -rf ./webrtc_checkout/ ./depot_tools/'
-                        sh 'rm -rf webrtc*.zip'
+                        sh returnStatus: true, script: 'rm -rf ./webrtc_checkout/ ./depot_tools/'
+                        sh returnStatus: true, script: 'rm -rf webrtc*.zip'
 
                         // build
                         sh './scripts/build_iosx.sh'
