@@ -1,6 +1,10 @@
 #! /bin/bash
 
 apt update && apt install -y \
+	make \
+	build-essential \
+	pkg-config \
+	python \
 	zip \
 	xcompmgr \
 	x11-utils \
@@ -94,5 +98,5 @@ apt update && apt install -y \
 	binutils-mips64el-linux-gnuabi64 \
 	binutils-arm-linux-gnueabihf \
 	binutils-aarch64-linux-gnu \
-	apache2-bin
-
+	apache2-bin \
+&& rm -rf /var/lib/apt/lists/*

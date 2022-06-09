@@ -36,6 +36,6 @@ if not found_rel:
 	found_rel = grepo.create_git_release(rb, rb, 'Version {}'.format(rb))
 
 for fl in os.listdir('.'):
-	if re.match('webrtc_{}_.*\.zip'.format(rb), fl):
+	if re.match('webrtc_{}.*\.zip'.format(release), fl):
 		print(fl)
 		found_rel.upload_asset(fl)
