@@ -11,8 +11,9 @@ pipeline {
                         // checkout
                         git branch: params.BRANCH, url: 'https://github.com/wireapp/prebuilt-webrtc-binaries.git'
 
-                        // cleanup docker
+                        // cleanup docker and zips
                         sh 'docker container prune -f && docker volume prune -f'
+                        sh returnStatus: true, script: 'rm -rf webrtc*.zip'
 
                         // build
                         sh 'docker build . -t prebuilt-webrtc'
