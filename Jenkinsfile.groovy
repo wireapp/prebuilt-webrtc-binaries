@@ -23,7 +23,7 @@ pipeline {
                 }
                 stage('macOS') {
                     agent {
-                        label 'built-in'
+                        label 'm1'
                     }
                     steps {
                         // checkout
