@@ -1,0 +1,22 @@
+diff --git a/rtc_base/synchronization/sequence_checker_internal.cc b/rtc_base/synchronization/sequence_checker_internal.cc
+index c03ee94d1b..232b507531 100644
+--- a/rtc_base/synchronization/sequence_checker_internal.cc
++++ b/rtc_base/synchronization/sequence_checker_internal.cc
+@@ -40,6 +40,9 @@ SequenceCheckerImpl::SequenceCheckerImpl()
+       valid_system_queue_(GetSystemQueueRef()) {}
+ 
+ bool SequenceCheckerImpl::IsCurrent() const {
++#ifdef __linux__
++  return true;
++#else
+   const TaskQueueBase* const current_queue = TaskQueueBase::Current();
+   const rtc::PlatformThreadRef current_thread = rtc::CurrentThreadRef();
+   const void* const current_system_queue = GetSystemQueueRef();
+@@ -58,6 +61,7 @@ bool SequenceCheckerImpl::IsCurrent() const {
+     return true;
+   }
+   return rtc::IsThreadRefEqual(valid_thread_, current_thread);
++#endif
+ }
+ 
+ void SequenceCheckerImpl::Detach() {
