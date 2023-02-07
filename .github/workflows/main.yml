@@ -1,0 +1,125 @@
+name: Build
+
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_linux:
+    name: linux
+    runs-on: ubuntu-18.04
+
+    steps:
+      # Checks-out the repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y xcompmgr \
+                  uuid-dev \
+                  snapcraft \
+                  python-psutil \
+                  openbox \
+                  libxtst-dev \
+                  libxss-dev \
+                  libxslt1-dev \
+                  libxkbcommon-dev \
+                  libvulkan-dev \
+                  libudev-dev \
+                  libspeechd2 \
+                  libspeechd-dev \
+                  libsctp-dev \
+                  libpulse0 \
+                  libpulse-dev \
+                  libpci-dev \
+                  libpango1.0-0 \
+                  libnss3-dev \
+                  libnspr4-dev \
+                  libkrb5-dev \
+                  libinput10 \
+                  libinput-dev \
+                  libgtk-3-dev \
+                  libgnome-keyring0 \
+                  libgnome-keyring-dev \
+                  libglu1-mesa-dev \
+                  libevdev2 \
+                  libevdev-dev \
+                  libelf-dev \
+                  libdrm-dev \
+                  libcurl4-gnutls-dev \
+                  libcups2-dev \
+                  libcap-dev \
+                  libbrlapi0.6 \
+                  libbrlapi-dev \
+                  libbluetooth-dev \
+                  libatspi2.0-dev \
+                  libasound2-dev \
+                  libappindicator3-dev \
+                  libappindicator3-1 \
+                  gperf \
+                  devscripts \
+                  binutils-mipsel-linux-gnu \
+                  binutils-mips64el-linux-gnuabi64 \
+                  binutils-arm-linux-gnueabihf \
+                  binutils-aarch64-linux-gnu \
+                  xcompmgr \
+                  x11-utils \
+                  subversion \
+                  ruby \
+                  rpm \
+                  php7.2-cgi \
+                  p7zip \
+                  libxt-dev \
+                  libssl-dev \
+                  libsqlite3-dev \
+                  libgbm-dev \
+                  libffi-dev \
+                  libbz2-dev \
+                  libapache2-mod-php7.2 \
+                  elfutils \
+                  dbus-x11 \
+                  cdbs \
+                  apache2-bin
+          sudo apt-get install -y linux-libc-dev:i386 libx11-xcb1:i386 libpci3:i386
+
+      - name: Build
+        run: ./scripts/build_linux.sh
+
+      - name: Package
+        run: ./scripts/package.sh
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          path: webrtc_*.zip
+
+  build_macos:
+    name: macOS
+    runs-on: macos-10.14
+
+    env:
+        DEVELOPER_DIR: /Applications/Xcode_11.3.app/Contents/Developer
+
+    steps:
+      # Checks-out the repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: ./scripts/build_iosx.sh
+
+      - name: Package
+        run: ./scripts/package.sh
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          path: webrtc_*.zip
+
