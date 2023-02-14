@@ -27,6 +27,19 @@ if [ "$WEBRTC_COMMIT" != "" ]; then
 fi
 gclient sync
 
+popd >/dev/null
+popd >/dev/null
+
+# Glient sync updates depot_tools to latest version.
+# Use depot tools with ninja binary
+# newer depot-tools use Ninja binary from cipd DEPS
+pushd depot_tools >/dev/null
+git checkout 1f67d5573f9cc19bc7fd52b0295687164cc979d6
+popd >/dev/null
+
+pushd webrtc_checkout >/dev/null
+pushd src >/dev/null
+
 #for PATCH in ../../patch/*.patch; do 
 #  patch -p1 < $PATCH
 #done

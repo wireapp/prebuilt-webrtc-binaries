@@ -4,7 +4,7 @@ SCRIPT_DIR=${BASH_SOURCE%/*}
 . "$SCRIPT_DIR/version.sh"
 
 if [ -e depot_tools ]; then
-	pushd depot_tools
+	pushd depot_tools >/dev/null
 	git pull
 	popd
 else
@@ -14,10 +14,10 @@ fi
 export PATH=$PATH:$PWD/depot_tools
 
 if [ -e webrtc_checkout ]; then
-	pushd webrtc_checkout/
+	pushd webrtc_checkout/ >/dev/null
 else
 	mkdir webrtc_checkout
-	pushd webrtc_checkout/
+	pushd webrtc_checkout/ >/dev/null
 	fetch --nohooks webrtc_android
 fi
 
@@ -26,6 +26,19 @@ pushd src > /dev/null
 git checkout $WEBRTC_COMMIT
 
 yes | gclient sync
+
+popd >/dev/null
+popd >/dev/null
+
+# Glient sync updates depot_tools to latest version.
+# Use depot tools with ninja binary
+# since newer depot-tools use Ninja binary from cipd DEPS
+pushd depot_tools >/dev/null
+git checkout 1f67d5573f9cc19bc7fd52b0295687164cc979d6
+popd >/dev/null
+
+pushd webrtc_checkout >/dev/null
+pushd src >/dev/null
 
 for PATCH in ../../patch/*.patch; do 
   patch -p1 < $PATCH
