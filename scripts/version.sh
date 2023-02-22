@@ -1,4 +1,4 @@
 
-export WEBRTC_RELEASE=20230214
-# WebRTC from Chrome M102
-export WEBRTC_COMMIT=edbd42cda0308d42a3e16e6efdfa95a6fc3fe7b3
+export WEBRTC_RELEASE=20230222
+# WebRTC from Chrome M105
+export WEBRTC_COMMIT=42be4ae879ed6870dfc5ca554d11062b536da717
