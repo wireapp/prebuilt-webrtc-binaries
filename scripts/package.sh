@@ -35,7 +35,7 @@ for OS in $AVS_OS; do
 			cp $p/obj/libwebrtc.a $dst/
 		fi
 
-		jar=$p/obj/modules/audio_device/audio_device_java.processed.jar
+		jar=$p/obj/sdk/android/java_audio_device_module_java.processed.jar
 		if [ -e $jar ]; then
 			mkdir -p ./$WEBRTC_RB/java
 			cp $jar ./$WEBRTC_RB/java/audiodev.jar
