@@ -3,7 +3,9 @@ name: Build
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: 
+      - master
+      - 'update-webrtc-m*'  # Also run on WebRTC update branches
   pull_request:
     branches: [ master ]
 
