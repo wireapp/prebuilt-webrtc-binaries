@@ -1,14 +1,14 @@
 name: Build
 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: 
-      - master
+      - main
       - 'update-webrtc-m*'  # Also run on WebRTC update branches
   pull_request:
     branches: 
-      - master
+      - main
       - 'update-webrtc-m*'  # Also run on WebRTC update branches
 
 
@@ -18,11 +18,11 @@ on:
 jobs:
   build_linux:
     name: linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -102,20 +102,18 @@ jobs:
         run: ./scripts/package.sh
           
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
+          name: linux-artifacts
           path: webrtc_*.zip
 
   build_macos:
     name: macOS
-    runs-on: macos-10.14
-
-    env:
-        DEVELOPER_DIR: /Applications/Xcode_11.3.app/Contents/Developer
+    runs-on: macos-latest
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build
         run: ./scripts/build_iosx.sh
@@ -124,7 +122,63 @@ jobs:
         run: ./scripts/package.sh
           
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
+          name: macos-artifacts
           path: webrtc_*.zip
+
+  create_release:
+    name: Create Release
+    needs: [build_linux, build_macos]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/update-webrtc-m')
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Load version info
+        run: |
+          source scripts/version.sh
+          echo "WEBRTC_RELEASE=$WEBRTC_RELEASE" >> $GITHUB_ENV
+          echo "WEBRTC_COMMIT=$WEBRTC_COMMIT" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$WEBRTC_RELEASE.${{ github.run_number }}" >> $GITHUB_ENV
+      
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifacts
+          path: ./artifacts
+      
+      - name: Download macOS Artifacts  
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-artifacts
+          path: ./artifacts
+          
+      - name: Create GitHub Release
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## WebRTC Prebuilt Binaries
+
+          **Version:** ${{ env.RELEASE_TAG }}
+          **WebRTC Commit:** ${{ env.WEBRTC_COMMIT }}
+          **Build Date:** ${{ github.run_number }}
+
+          This release contains prebuilt WebRTC binaries for:
+          - Linux (x86_64, Android ARM/ARM64/x86/x86_64)  
+          - macOS (x86_64, ARM64)
+          - iOS (ARM64, Simulator)
+
+          Built automatically from the latest stable WebRTC release.
+          EOF
+          
+          gh release create "$RELEASE_TAG" \
+            --title "WebRTC $RELEASE_TAG" \
+            --notes-file release_notes.md \
+            ./artifacts/webrtc_*.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
 
