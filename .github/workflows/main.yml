@@ -7,7 +7,10 @@ on:
       - master
       - 'update-webrtc-m*'  # Also run on WebRTC update branches
   pull_request:
-    branches: [ master ]
+    branches: 
+      - master
+      - 'update-webrtc-m*'  # Also run on WebRTC update branches
+
 
   # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
