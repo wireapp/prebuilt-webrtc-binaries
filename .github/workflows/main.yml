@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential python3 git curl
+          sudo apt-get install -y build-essential python3 git curl pkg-config
 
       - name: Load version info
         run: |
