@@ -18,7 +18,8 @@ on:
 jobs:
   build_linux:
     name: linux
-    runs-on: ubuntu-latest
+    runs-on:
+      group: linux-office-runners
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
