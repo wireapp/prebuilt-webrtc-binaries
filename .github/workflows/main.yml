@@ -47,9 +47,8 @@ jobs:
       - name: Setup depot_tools
         run: |
           if [ -e depot_tools ]; then
-            pushd depot_tools >/dev/null
+            cd depot_tools
             git pull
-            popd >/dev/null
           else
             git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
           fi
@@ -65,75 +64,64 @@ jobs:
 
       - name: Initialize WebRTC checkout
         run: |
-          if [ -e webrtc_checkout ]; then
-            pushd webrtc_checkout/ >/dev/null
-          else
+          if [ ! -e webrtc_checkout ]; then
             mkdir webrtc_checkout
-            pushd webrtc_checkout/ >/dev/null
+            cd webrtc_checkout
             fetch --nohooks webrtc_android
           fi
-          popd >/dev/null
 
       - name: Sync WebRTC source
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           git checkout $WEBRTC_COMMIT
           yes | gclient sync
-          popd >/dev/null
 
       - name: Apply patches
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           for PATCH in ../../patch/*.patch; do 
             patch -p1 < $PATCH
           done
-          popd >/dev/null
 
       - name: Setup Android environment
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           . build/android/envsetup.sh
-          popd >/dev/null
 
       - name: Build Linux x86_64
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
           gn gen out/linux-x86_64 --args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
           ninja -C out/linux-x86_64
-          popd >/dev/null
 
       - name: Build Android x86
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
           gn gen out/android-i386 --args="target_os=\"android\" target_cpu=\"x86\" $ARGS"
           ninja -C out/android-i386
-          popd >/dev/null
 
       - name: Build Android x86_64
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
           gn gen out/android-x86_64 --args="target_os=\"android\" target_cpu=\"x64\" $ARGS"
           ninja -C out/android-x86_64
-          popd >/dev/null
 
       - name: Build Android ARMv7
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
           gn gen out/android-armv7 --args="target_os=\"android\" target_cpu=\"arm\" $ARGS"
           ninja -C out/android-armv7
-          popd >/dev/null
 
       - name: Build Android ARM64
         run: |
-          pushd webrtc_checkout/src >/dev/null
+          cd webrtc_checkout/src
           export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
           gn gen out/android-arm64 --args="target_os=\"android\" target_cpu=\"arm64\" $ARGS"
           ninja -C out/android-arm64
-          popd >/dev/null
 
       - name: Package
         run: ./scripts/package.sh
