@@ -1,0 +1,89 @@
+name: Check WebRTC Updates
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  workflow_dispatch:
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for updates
+        id: check
+        run: |
+          # Get milestones data once
+          milestones=$(curl -s "https://chromiumdash.appspot.com/fetch_milestones")
+          
+          # Current version
+          source scripts/version.sh
+          current_branch=$(echo $WEBRTC_COMMIT | grep -o '[0-9]\+')
+          current_milestone=$(echo "$milestones" | jq -r ".[] | select(.webrtc_branch == \"$current_branch\") | .milestone")
+          
+          # Latest stable milestone 
+          latest=$(echo "$milestones" | jq -r '[.[] | select(.schedule_phase == "stable" or .schedule_phase == "stable_cut")] | max_by(.milestone)')
+          latest_milestone=$(echo "$latest" | jq -r '.milestone')
+          webrtc_branch=$(echo "$latest" | jq -r '.webrtc_branch')
+          
+          echo "current_milestone=$current_milestone" >> $GITHUB_OUTPUT
+          echo "latest_milestone=$latest_milestone" >> $GITHUB_OUTPUT
+          echo "webrtc_branch=$webrtc_branch" >> $GITHUB_OUTPUT
+          
+          if [ "$latest_milestone" -gt "$current_milestone" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "Update available: Chrome M$latest_milestone (branch-heads/$webrtc_branch)"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Already up to date (M$current_milestone)"
+          fi
+
+      - name: Create update PR
+        if: steps.check.outputs.needs_update == 'true'
+        run: |
+          milestone=${{ steps.check.outputs.latest_milestone }}
+          branch="update-webrtc-m$milestone"
+          
+          # Check if PR already exists
+          if gh pr list --state open --head "$branch" | grep -q "$branch"; then
+            echo "PR already exists for M$milestone - skipping"
+            exit 0
+          fi
+          
+          git config user.name "WebRTC Update Bot"
+          git config user.email "action@github.com"
+          git checkout -b "$branch"
+          
+          # Update version file with correct branch-heads number
+          webrtc_branch=${{ steps.check.outputs.webrtc_branch }}
+          cat > scripts/version.sh << EOF
+          export WEBRTC_RELEASE=$(date +%Y%m%d)
+          # WebRTC from Chrome M$milestone
+          export WEBRTC_COMMIT=branch-heads/$webrtc_branch
+          
+          EOF
+          
+          git add scripts/version.sh
+          git commit -m "Update WebRTC to Chrome M$milestone"
+          git push origin "$branch"
+          
+          # Create PR
+          gh pr create --title "Update WebRTC to Chrome M$milestone" --body "
+          ## WebRTC (Security) Update
+          
+          Chrome M$milestone is now available.
+          Updated to \`branch-heads/$webrtc_branch\` (from Chromium Dashboard).
+          
+          **Testing:**
+          - [ ] Test Linux build: \`./scripts/build_linux.sh\`
+          - [ ] Test macOS build: \`./scripts/build_iosx.sh\`  
+          - [ ] Check patches apply cleanly
+          - [ ] Validate generated binaries
+          "
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

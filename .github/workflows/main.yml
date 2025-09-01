@@ -1,11 +1,16 @@
 name: Build
 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ master ]
+    branches: 
+      - main
+      - 'update-webrtc-m*'  # Also run on WebRTC update branches
   pull_request:
-    branches: [ master ]
+    branches: 
+      - main
+      - 'update-webrtc-m*'  # Also run on WebRTC update branches
+
 
   # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -13,104 +18,128 @@ on:
 jobs:
   build_linux:
     name: linux
-    runs-on: ubuntu-18.04
+    runs-on:
+      group: linux-office-runners
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y xcompmgr \
-                  uuid-dev \
-                  snapcraft \
-                  python-psutil \
-                  openbox \
-                  libxtst-dev \
-                  libxss-dev \
-                  libxslt1-dev \
-                  libxkbcommon-dev \
-                  libvulkan-dev \
-                  libudev-dev \
-                  libspeechd2 \
-                  libspeechd-dev \
-                  libsctp-dev \
-                  libpulse0 \
-                  libpulse-dev \
-                  libpci-dev \
-                  libpango1.0-0 \
-                  libnss3-dev \
-                  libnspr4-dev \
-                  libkrb5-dev \
-                  libinput10 \
-                  libinput-dev \
-                  libgtk-3-dev \
-                  libgnome-keyring0 \
-                  libgnome-keyring-dev \
-                  libglu1-mesa-dev \
-                  libevdev2 \
-                  libevdev-dev \
-                  libelf-dev \
-                  libdrm-dev \
-                  libcurl4-gnutls-dev \
-                  libcups2-dev \
-                  libcap-dev \
-                  libbrlapi0.6 \
-                  libbrlapi-dev \
-                  libbluetooth-dev \
-                  libatspi2.0-dev \
-                  libasound2-dev \
-                  libappindicator3-dev \
-                  libappindicator3-1 \
-                  gperf \
-                  devscripts \
-                  binutils-mipsel-linux-gnu \
-                  binutils-mips64el-linux-gnuabi64 \
-                  binutils-arm-linux-gnueabihf \
-                  binutils-aarch64-linux-gnu \
-                  xcompmgr \
-                  x11-utils \
-                  subversion \
-                  ruby \
-                  rpm \
-                  php7.2-cgi \
-                  p7zip \
-                  libxt-dev \
-                  libssl-dev \
-                  libsqlite3-dev \
-                  libgbm-dev \
-                  libffi-dev \
-                  libbz2-dev \
-                  libapache2-mod-php7.2 \
-                  elfutils \
-                  dbus-x11 \
-                  cdbs \
-                  apache2-bin
-          sudo apt-get install -y linux-libc-dev:i386 libx11-xcb1:i386 libpci3:i386
+          sudo apt-get install -y build-essential python3 git curl pkg-config
 
-      - name: Build
-        run: ./scripts/build_linux.sh
+      - name: Load version info
+        run: |
+          source scripts/version.sh
+          echo "WEBRTC_RELEASE=$WEBRTC_RELEASE" >> $GITHUB_ENV
+          echo "WEBRTC_COMMIT=$WEBRTC_COMMIT" >> $GITHUB_ENV
+
+      - name: Cache depot_tools
+        uses: actions/cache@v4
+        with:
+          path: depot_tools
+          key: depot-tools-${{ runner.os }}
+          restore-keys: |
+            depot-tools-${{ runner.os }}
+
+      - name: Setup depot_tools
+        run: |
+          if [ -e depot_tools ]; then
+            cd depot_tools
+            git pull
+          else
+            git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          fi
+          echo "$PWD/depot_tools" >> $GITHUB_PATH
+
+      - name: Cache WebRTC checkout
+        uses: actions/cache@v4
+        with:
+          path: webrtc_checkout
+          key: webrtc-checkout-${{ env.WEBRTC_COMMIT }}
+          restore-keys: |
+            webrtc-checkout-
+
+      - name: Initialize WebRTC checkout
+        run: |
+          if [ ! -e webrtc_checkout ]; then
+            mkdir webrtc_checkout
+            cd webrtc_checkout
+            fetch --nohooks webrtc_android
+          fi
+
+      - name: Sync WebRTC source
+        run: |
+          cd webrtc_checkout/src
+          git checkout $WEBRTC_COMMIT
+          yes | gclient sync
+
+      - name: Apply patches
+        run: |
+          cd webrtc_checkout/src
+          for PATCH in ../../patch/*.patch; do 
+            patch -p1 < $PATCH
+          done
+
+      - name: Setup Android environment
+        run: |
+          cd webrtc_checkout/src
+          . build/android/envsetup.sh
+
+      - name: Build Linux x86_64
+        run: |
+          cd webrtc_checkout/src
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/linux-x86_64 --args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
+          ninja -C out/linux-x86_64
+
+      - name: Build Android x86
+        run: |
+          cd webrtc_checkout/src
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-i386 --args="target_os=\"android\" target_cpu=\"x86\" $ARGS"
+          ninja -C out/android-i386
+
+      - name: Build Android x86_64
+        run: |
+          cd webrtc_checkout/src
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-x86_64 --args="target_os=\"android\" target_cpu=\"x64\" $ARGS"
+          ninja -C out/android-x86_64
+
+      - name: Build Android ARMv7
+        run: |
+          cd webrtc_checkout/src
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-armv7 --args="target_os=\"android\" target_cpu=\"arm\" $ARGS"
+          ninja -C out/android-armv7
+
+      - name: Build Android ARM64
+        run: |
+          cd webrtc_checkout/src
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-arm64 --args="target_os=\"android\" target_cpu=\"arm64\" $ARGS"
+          ninja -C out/android-arm64
 
       - name: Package
         run: ./scripts/package.sh
           
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
+          name: linux-artifacts
           path: webrtc_*.zip
 
   build_macos:
     name: macOS
-    runs-on: macos-10.14
-
-    env:
-        DEVELOPER_DIR: /Applications/Xcode_11.3.app/Contents/Developer
+    runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build
         run: ./scripts/build_iosx.sh
@@ -119,7 +148,65 @@ jobs:
         run: ./scripts/package.sh
           
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
+          name: macos-artifacts
           path: webrtc_*.zip
+
+  create_release:
+    name: Create Release
+    needs: [build_linux]
+    if: always() && (needs.build_linux.result == 'success') && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/update-webrtc-m'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Load version info
+        run: |
+          source scripts/version.sh
+          echo "WEBRTC_RELEASE=$WEBRTC_RELEASE" >> $GITHUB_ENV
+          echo "WEBRTC_COMMIT=$WEBRTC_COMMIT" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$WEBRTC_RELEASE.${{ github.run_number }}" >> $GITHUB_ENV
+      
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifacts
+          path: ./artifacts
+      
+      - name: Download macOS Artifacts  
+        uses: actions/download-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        with:
+          name: macos-artifacts
+          path: ./artifacts
+          
+      - name: Create GitHub Release
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## WebRTC Prebuilt Binaries
+
+          **Version:** ${{ env.RELEASE_TAG }}
+          **WebRTC Commit:** ${{ env.WEBRTC_COMMIT }}
+          **Build Date:** ${{ github.run_number }}
+
+          This release contains prebuilt WebRTC binaries for:
+          - Linux (x86_64, Android ARM/ARM64/x86/x86_64)  
+          - macOS (x86_64, ARM64)
+          - iOS (ARM64, Simulator)
+
+          Built automatically from the latest stable WebRTC release.
+          EOF
+          
+          gh release create "$RELEASE_TAG" \
+            --title "WebRTC $RELEASE_TAG" \
+            --notes-file release_notes.md \
+            ./artifacts/webrtc_*.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
 
