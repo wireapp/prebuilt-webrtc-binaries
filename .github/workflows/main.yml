@@ -30,8 +30,110 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential python3 git curl
 
-      - name: Build
-        run: ./scripts/build_linux.sh
+      - name: Load version info
+        run: |
+          source scripts/version.sh
+          echo "WEBRTC_RELEASE=$WEBRTC_RELEASE" >> $GITHUB_ENV
+          echo "WEBRTC_COMMIT=$WEBRTC_COMMIT" >> $GITHUB_ENV
+
+      - name: Cache depot_tools
+        uses: actions/cache@v4
+        with:
+          path: depot_tools
+          key: depot-tools-${{ runner.os }}
+          restore-keys: |
+            depot-tools-${{ runner.os }}
+
+      - name: Setup depot_tools
+        run: |
+          if [ -e depot_tools ]; then
+            pushd depot_tools >/dev/null
+            git pull
+            popd >/dev/null
+          else
+            git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          fi
+          echo "$PWD/depot_tools" >> $GITHUB_PATH
+
+      - name: Cache WebRTC checkout
+        uses: actions/cache@v4
+        with:
+          path: webrtc_checkout
+          key: webrtc-checkout-${{ env.WEBRTC_COMMIT }}
+          restore-keys: |
+            webrtc-checkout-
+
+      - name: Initialize WebRTC checkout
+        run: |
+          if [ -e webrtc_checkout ]; then
+            pushd webrtc_checkout/ >/dev/null
+          else
+            mkdir webrtc_checkout
+            pushd webrtc_checkout/ >/dev/null
+            fetch --nohooks webrtc_android
+          fi
+          popd >/dev/null
+
+      - name: Sync WebRTC source
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          git checkout $WEBRTC_COMMIT
+          yes | gclient sync
+          popd >/dev/null
+
+      - name: Apply patches
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          for PATCH in ../../patch/*.patch; do 
+            patch -p1 < $PATCH
+          done
+          popd >/dev/null
+
+      - name: Setup Android environment
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          . build/android/envsetup.sh
+          popd >/dev/null
+
+      - name: Build Linux x86_64
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/linux-x86_64 --args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
+          ninja -C out/linux-x86_64
+          popd >/dev/null
+
+      - name: Build Android x86
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-i386 --args="target_os=\"android\" target_cpu=\"x86\" $ARGS"
+          ninja -C out/android-i386
+          popd >/dev/null
+
+      - name: Build Android x86_64
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-x86_64 --args="target_os=\"android\" target_cpu=\"x64\" $ARGS"
+          ninja -C out/android-x86_64
+          popd >/dev/null
+
+      - name: Build Android ARMv7
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-armv7 --args="target_os=\"android\" target_cpu=\"arm\" $ARGS"
+          ninja -C out/android-armv7
+          popd >/dev/null
+
+      - name: Build Android ARM64
+        run: |
+          pushd webrtc_checkout/src >/dev/null
+          export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
+          gn gen out/android-arm64 --args="target_os=\"android\" target_cpu=\"arm64\" $ARGS"
+          ninja -C out/android-arm64
+          popd >/dev/null
 
       - name: Package
         run: ./scripts/package.sh
@@ -45,6 +147,7 @@ jobs:
   build_macos:
     name: macOS
     runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
@@ -64,9 +167,9 @@ jobs:
 
   create_release:
     name: Create Release
-    needs: [build_linux, build_macos]
+    needs: [build_linux]
+    if: always() && (needs.build_linux.result == 'success') && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/update-webrtc-m'))
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/update-webrtc-m')
     permissions:
       contents: write
     
@@ -88,6 +191,8 @@ jobs:
       
       - name: Download macOS Artifacts  
         uses: actions/download-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         with:
           name: macos-artifacts
           path: ./artifacts
