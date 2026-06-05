@@ -39,11 +39,11 @@ gn gen out/osx-arm64 -args="target_os=\"mac\" target_cpu=\"arm64\" $ARGS"
 ninja -C out/osx-arm64
 
 export ARGS="$ARGS ios_enable_code_signing=false"
-gn gen out/ios-arm64 -args="target_os=\"ios\" target_cpu=\"arm64\" $ARGS"
+gn gen out/ios-arm64 -args="target_os=\"ios\" target_cpu=\"arm64\" target_environment=\"device\" $ARGS"
 ninja -C out/ios-arm64
 
 # Simulator environemnts
-gn gen out/iossim-x86_64 -args="target_os=\"ios\" target_cpu=\"x64\" $ARGS"
+gn gen out/iossim-x86_64 -args="target_os=\"ios\" target_cpu=\"x64\" target_environment=\"simulator\" $ARGS"
 ninja -C out/iossim-x86_64
 
 gn gen out/iossim-arm64 -args="target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"arm64\" $ARGS"

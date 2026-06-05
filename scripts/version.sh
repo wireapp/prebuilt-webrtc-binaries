@@ -1,4 +1,4 @@
-export WEBRTC_RELEASE=20241021
-# WebRTC from Chrome M130
-export WEBRTC_COMMIT=branch-heads/6723
+export WEBRTC_RELEASE=20260605
+# WebRTC from Chrome M149
+export WEBRTC_COMMIT=branch-heads/7827
 
