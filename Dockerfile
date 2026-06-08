@@ -6,7 +6,7 @@ RUN apt update && apt install -y \
         make \
         build-essential \
         pkg-config \
-        python \
+        python3 \
         zip \
         xcompmgr \
         x11-utils \
@@ -14,7 +14,7 @@ RUN apt update && apt install -y \
         subversion \
         ruby \
         rpm \
-        php7.4-cgi \
+        php8.1-cgi \
         p7zip \
         openbox \
         mesa-common-dev \
@@ -83,7 +83,7 @@ RUN apt update && apt install -y \
         libcairo2-dev \
         libcairo2 \
         libbz2-dev \
-        libbrlapi0.7 \
+        libbrlapi0.8 \
         libbrlapi-dev \
         libbluetooth-dev \
         libatspi2.0-dev \
