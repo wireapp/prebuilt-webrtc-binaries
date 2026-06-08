@@ -13,7 +13,8 @@ pipeline {
 
                         // cleanup docker and zips
                         sh 'docker container prune -f && docker volume prune -f'
-                        sh returnStatus: true, script: 'rm -rf webrtc*.zip'
+                        sh 'rm -rf ./webrtc_checkout/ ./depot_tools/'
+			sh returnStatus: true, script: 'rm -rf webrtc*.zip'
 
                         // build
                         sh 'docker build . -t prebuilt-webrtc'
