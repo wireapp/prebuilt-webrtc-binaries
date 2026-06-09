@@ -39,17 +39,17 @@ ninja -C out/linux-x86_64
 
 export ANDROID_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false android_static_analysis=\"off\""
 
-#gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" $ANDROID_ARGS"
-#ninja -C out/android-i386
+gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" $ANDROID_ARGS"
+ninja -C out/android-i386
 
-#gn gen out/android-x86_64 -args="target_os=\"android\" target_cpu=\"x64\" $ANDROID_ARGS"
-#ninja -C out/android-x86_64
+gn gen out/android-x86_64 -args="target_os=\"android\" target_cpu=\"x64\" $ANDROID_ARGS"
+ninja -C out/android-x86_64
 
-#gn gen out/android-armv7 -args="target_os=\"android\" target_cpu=\"arm\" $ANDROID_ARGS"
-#ninja -C out/android-armv7
+gn gen out/android-armv7 -args="target_os=\"android\" target_cpu=\"arm\" $ANDROID_ARGS"
+ninja -C out/android-armv7
 
-#gn gen out/android-arm64 -args="target_os=\"android\" target_cpu=\"arm64\" $ANDROID_ARGS"
-#ninja -C out/android-arm64
+gn gen out/android-arm64 -args="target_os=\"android\" target_cpu=\"arm64\" $ANDROID_ARGS"
+ninja -C out/android-arm64
 
 popd > /dev/null
 popd > /dev/null
