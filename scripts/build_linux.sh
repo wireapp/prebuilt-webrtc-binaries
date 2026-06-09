@@ -33,20 +33,22 @@ done
 
 . build/android/envsetup.sh 
 
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false"
-gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
+export LINUX_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false treat_warnings_as_errors=false"
+gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $LINUX_ARGS"
 ninja -C out/linux-x86_64
 
-#gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" android_static_analysis=\"off\" $ARGS"
+export ANDROID_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false android_static_analysis=\"off\""
+
+#gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" $ANDROID_ARGS"
 #ninja -C out/android-i386
 
-#gn gen out/android-x86_64 -args="target_os=\"android\" target_cpu=\"x64\" android_static_analysis=\"off\" $ARGS"
+#gn gen out/android-x86_64 -args="target_os=\"android\" target_cpu=\"x64\" $ANDROID_ARGS"
 #ninja -C out/android-x86_64
 
-#gn gen out/android-armv7 -args="target_os=\"android\" target_cpu=\"arm\" android_static_analysis=\"off\" $ARGS"
+#gn gen out/android-armv7 -args="target_os=\"android\" target_cpu=\"arm\" $ANDROID_ARGS"
 #ninja -C out/android-armv7
 
-#gn gen out/android-arm64 -args="target_os=\"android\" target_cpu=\"arm64\" android_static_analysis=\"off\" $ARGS"
+#gn gen out/android-arm64 -args="target_os=\"android\" target_cpu=\"arm64\" $ANDROID_ARGS"
 #ninja -C out/android-arm64
 
 popd > /dev/null
