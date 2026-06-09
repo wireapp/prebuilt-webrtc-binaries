@@ -19,6 +19,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'github-repo-access', variable: 'token')]) {
                     sh(
 		        script: """
+			    python3 -m pip install PyGithub
 			    scripts/version.sh
                             GITHUB_TOKEN=$token
 			    BUILD_NUMBER=$PARENT_BUILD_NUMBER 			    
