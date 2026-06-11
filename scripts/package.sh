@@ -17,9 +17,11 @@ if [ "$HOST_OS" == "Darwin" ]; then
 	mkdir -p ./$WEBRTC_RB/include
 	echo WEBRTC_RELEASE=$WEBRTC_RELEASE > ./$WEBRTC_RB/version.txt
 	echo WEBRTC_COMMIT=$WEBRTC_COMMIT >> ./$WEBRTC_RB/version.txt
+	echo "Working on .h files"
 	find webrtc_checkout/src -type f -iname "*.h" -exec scripts/cpheader.sh {} ./$WEBRTC_RB \;
+	echo "Working on .inc files"
+	find webrtc_checkout/src -type f -iname "*.inc" -exec scripts/cpheader.sh {} ./$WEBRTC_RB \;
 	zip -9r webrtc_${WEBRTC_RB}_headers.zip ./$WEBRTC_RB version.txt
-
 else
 	AVS_OS="android linux"
 fi
@@ -35,13 +37,13 @@ for OS in $AVS_OS; do
 			cp $p/obj/libwebrtc.a $dst/
 		fi
 
-		jar=$p/obj/sdk/android/java_audio_device_module_java.processed.jar
+		jar=$p/obj/sdk/android/java_audio_device_module_java.javac.jar
 		if [ -e $jar ]; then
 			mkdir -p ./$WEBRTC_RB/java
 			cp $jar ./$WEBRTC_RB/java/audiodev.jar
 		fi
 
-		jar=$p/obj/rtc_base/base_java.processed.jar
+		jar=$p/obj/rtc_base/base_java.javac.jar
 		if [ -e $jar ]; then
 			mkdir -p ./$WEBRTC_RB/java
 			cp $jar ./$WEBRTC_RB/java/base.jar
