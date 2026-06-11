@@ -17,14 +17,11 @@ pipeline {
         stage('Publish') {
             steps {
                 withCredentials([string(credentialsId: 'github-repo-access', variable: 'token')]) {
-                    sh(
-		        script: """
-			    scripts/version.sh
-                            GITHUB_TOKEN=$token
-			    BUILD_NUMBER=$PARENT_BUILD_NUMBER 			    
-                            python3 ./scripts/push2github.py
-                        """
-		    )
+                    sh '''
+                    export GITHUB_TOKEN=$token
+                    . scripts/version.sh
+                    BUILD_NUMBER=$PARENT_BUILD_NUMBER python3 scripts/push2github.py
+                    '''
                 }
             }
         }
