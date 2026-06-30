@@ -1,0 +1,39 @@
+diff --git a/rtc_base/containers/flat_tree.h b/rtc_base/containers/flat_tree.h
+index 43db5b7664..db828f5af1 100644
+--- a/rtc_base/containers/flat_tree.h
++++ b/rtc_base/containers/flat_tree.h
+@@ -455,7 +455,20 @@ class flat_tree {
+ 
+     template <typename T, typename U>
+     bool operator()(const T& lhs, const U& rhs) const {
+-      return comp_(extract_if_value_type(lhs), extract_if_value_type(rhs));
++	    auto&& left = extract_if_value_type(lhs);
++	    auto&& right = extract_if_value_type(rhs);
++
++	    // Fallback logic that handles both StrongAlias and standard types safely
++	    using LeftType = std::decay_t<decltype(left)>;
++	    using RightType = std::decay_t<decltype(right)>;
++
++	    if constexpr (std::is_same_v<LeftType, RightType>) {
++		    return comp_(left, right);
++	    } else {
++		    // If types mismatch (like string vs string_view), convert to a common format
++		    using CommonType = std::common_type_t<LeftType, RightType>;
++		    return comp_(static_cast<CommonType>(left), static_cast<CommonType>(right));
++	    }
+     }
+ 
+    private:
+diff --git a/rtc_base/ssl_stream_adapter.h b/rtc_base/ssl_stream_adapter.h
+index 0568bd0310..a6df194919 100644
+--- a/rtc_base/ssl_stream_adapter.h
++++ b/rtc_base/ssl_stream_adapter.h
+@@ -129,7 +129,7 @@ class SSLStreamAdapter : public StreamInterface {
+   static std::unique_ptr<SSLStreamAdapter> Create(
+       std::unique_ptr<StreamInterface> stream,
+       absl::AnyInvocable<void(SSLHandshakeError)> handshake_error,
+-      nullptr_t /*field_trials*/) {
++      std::nullptr_t /*field_trials*/) {
+     return Create(std::move(stream), std::move(handshake_error));
+   }
+ 
