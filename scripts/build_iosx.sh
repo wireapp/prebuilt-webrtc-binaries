@@ -30,6 +30,7 @@ gclient sync
 #for PATCH in ../../patch/*.patch; do 
 #  patch -p1 < $PATCH
 #done
+patch -p1 < ../../patch/old_sysroot.patch
 
 export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false treat_warnings_as_errors=false"
 gn gen out/osx-x86_64 -args="target_os=\"mac\" target_cpu=\"x64\" $ARGS"
