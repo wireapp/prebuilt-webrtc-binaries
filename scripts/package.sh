@@ -49,6 +49,12 @@ for OS in $AVS_OS; do
 			cp $jar ./$WEBRTC_RB/java/base.jar
 		fi
 
+		jar=$p/obj/third_party/jni_zero/jni_zero_java.javac.jar
+		if [ -e $jar ]; then
+			mkdir -p ./$WEBRTC_RB/java
+			cp $jar ./$WEBRTC_RB/java/jnizero.jar
+		fi
+
 		if [ "$HOST_OS" == "Darwin" ] && [ "$OS" == "ios" ]; then
 			mkdir -p ./$WEBRTC_RB/ios
 			cp webrtc_checkout/src/sdk/objc/components/audio/RTCAudioSession+Configuration.mm ./$WEBRTC_RB/ios
