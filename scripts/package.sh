@@ -49,10 +49,16 @@ for OS in $AVS_OS; do
 			cp $jar ./$WEBRTC_RB/java/base.jar
 		fi
 
+		jar=$p/obj/sdk/android/base_java.javac.jar
+		if [ -e $jar ]; then
+			mkdir -p ./$WEBRTC_RB/java
+			cp $jar ./$WEBRTC_RB/java/base_sdk.jar
+		fi
+		
 		jar=$p/obj/third_party/jni_zero/jni_zero_java.javac.jar
 		if [ -e $jar ]; then
 			mkdir -p ./$WEBRTC_RB/java
-			cp $jar ./$WEBRTC_RB/java/jnizero.jar
+			cp $jar ./$WEBRTC_RB/java/jni_zero.jar
 		fi
 
 		if [ "$HOST_OS" == "Darwin" ] && [ "$OS" == "ios" ]; then
