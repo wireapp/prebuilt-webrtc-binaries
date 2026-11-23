@@ -33,9 +33,6 @@ gclient sync
 patch -p1 < ../../patch/old_sysroot.patch
 
 export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false treat_warnings_as_errors=false"
-gn gen out/osx-x86_64 -args="target_os=\"mac\" target_cpu=\"x64\" $ARGS"
-ninja -C out/osx-x86_64
-
 gn gen out/osx-arm64 -args="target_os=\"mac\" target_cpu=\"arm64\" $ARGS"
 ninja -C out/osx-arm64
 
@@ -44,9 +41,6 @@ gn gen out/ios-arm64 -args="target_os=\"ios\" target_cpu=\"arm64\" target_enviro
 ninja -C out/ios-arm64
 
 # Simulator environemnts
-gn gen out/iossim-x86_64 -args="target_os=\"ios\" target_cpu=\"x64\" target_environment=\"simulator\" $ARGS"
-ninja -C out/iossim-x86_64
-
 gn gen out/iossim-arm64 -args="target_os=\"ios\" target_environment=\"simulator\" target_cpu=\"arm64\" $ARGS"
 ninja -C out/iossim-arm64
 
