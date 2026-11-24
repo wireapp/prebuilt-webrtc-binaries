@@ -33,11 +33,11 @@ done
 
 . build/android/envsetup.sh 
 
-export LINUX_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false is_clang=true use_sysroot=false"
+export LINUX_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false is_clang=true use_sysroot=false rtc_rust=false"
 gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $LINUX_ARGS"
 ninja -C out/linux-x86_64
 
-export ANDROID_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false android_static_analysis=\"off\""
+export ANDROID_ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false use_custom_libcxx_for_host=false treat_warnings_as_errors=false android_static_analysis=\"off\" rtc_rust=false"
 
 gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" $ANDROID_ARGS"
 ninja -C out/android-i386

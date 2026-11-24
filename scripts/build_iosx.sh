@@ -32,7 +32,7 @@ gclient sync
 #done
 patch -p1 < ../../patch/old_sysroot.patch
 
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false treat_warnings_as_errors=false"
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false treat_warnings_as_errors=false rtc_rust=false"
 gn gen out/osx-arm64 -args="target_os=\"mac\" target_cpu=\"arm64\" $ARGS"
 ninja -C out/osx-arm64
 
